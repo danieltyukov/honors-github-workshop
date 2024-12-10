@@ -1,4 +1,5 @@
 import curses
+import random
 import time
 
 def main(stdscr):
@@ -6,29 +7,42 @@ def main(stdscr):
     stdscr.nodelay(1)
     stdscr.timeout(100)
 
-    # Initialize variables (intentionally leave out ’random’ and ’obstacles’ for now)
+    # Initialize variables
     sh, sw = stdscr.getmaxyx()
     w = sw // 2
     dino = [sh - 2, w]
+    obstacles = []
     score = 0
     jump = False
     jump_height = 5
     jump_count = 0
 
-    # NOTE: Obstacle logic is missing here intentionally
-    # We’ll add it later on another branch, causing a merge conflict.
-
     while True:
         stdscr.clear()
 
-        # Display Dino (using "D", but in the future we might change this character)
-        stdscr.addstr(dino[0], dino[1], "@")
+        # Display Dino
+        stdscr.addstr(dino[0], dino[1], "D")
 
-        # For now, no obstacle logic. Just increment score.
-        score += 1
-        stdscr.addstr(0, 0, f"Score: {score}")
+        # Add obstacles
+        if random.randint(0, 10) == 0:
+            obstacles.append([sh - 2, sw - 1])
 
-        # Handle jump logic (no changes needed here)
+        # Move obstacles and detect collision
+        for obstacle in obstacles[:]:
+            obstacle[1] -= 1
+            if obstacle[1] == dino[1] and obstacle[0] == dino[0]:
+                stdscr.addstr(sh // 2, sw // 2 - 5, "GAME OVER!")
+                stdscr.refresh()
+                time.sleep(2)
+                return
+            if obstacle[1] < 0:
+                obstacles.remove(obstacle)
+
+        # Display obstacles
+        for obstacle in obstacles:
+            stdscr.addstr(obstacle[0], obstacle[1], "X")
+
+        # Handle jump
         if jump:
             if jump_count < jump_height:
                 dino[0] -= 1
@@ -41,11 +55,15 @@ def main(stdscr):
             else:
                 jump_count = 0
 
-        # Check for user input (no obstacle checks here)
+        # Display score
+        score += 1
+        stdscr.addstr(0, 0, f"Score: {score}")
+
+        # Check for user input
         key = stdscr.getch()
         if key == ord('q'):
             break
-        if key == ord(' ') and dino[0] == sh - 2:
+        if key == ord(' ') and dino[0] == sh - 2:  # Jump if on the ground
             jump = True
 
         stdscr.refresh()
