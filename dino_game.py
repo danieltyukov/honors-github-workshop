@@ -22,7 +22,7 @@ def main(stdscr):
         stdscr.clear()
 
         # Display Dino (using "D", but in the future we might change this character)
-        stdscr.addstr(dino[0], dino[1], "D")
+        stdscr.addstr(dino[0], dino[1], "@")
 
         # For now, no obstacle logic. Just increment score.
         score += 1
